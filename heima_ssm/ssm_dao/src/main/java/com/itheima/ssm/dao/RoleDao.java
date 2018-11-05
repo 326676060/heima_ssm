@@ -1,5 +1,6 @@
 package com.itheima.ssm.dao;
 
+import com.itheima.ssm.domain.Permission;
 import com.itheima.ssm.domain.Role;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -57,4 +58,22 @@ public interface RoleDao {
                     many = @Many(select = "com.itheima.ssm.dao.PermissionDao.findPermissionByRoleId")),
     })
     Role findById(String id);
+
+    /**
+     * 根据roleId查询permission
+     *
+     * @param roleId
+     * @return
+     */
+    @Select("select * from permission where id not in (select permissionId from role_permission where roleId = #{roleId})")
+    List<Permission> findOtherPermission(String roleId);
+
+    /**
+     * 为角色添加权限
+     *
+     * @param roleId
+     * @param permissionId
+     */
+    @Insert("insert into role_permission values(#{permissionId},#{roleId})")
+    void addPermissionToRole(@Param("roleId") String roleId, @Param("permissionId") String permissionId);
 }
